@@ -1,19 +1,20 @@
-console.log("Hello! I'm alive!")
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
-
+const { sequelize } = require('./models')
+const config = require('./config/config')
 const app = express()
-app.use(morgan('combined'))
+
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(cors())
+app.use(morgan('combined'))
 
-app.get('/status', (req, res) => {
-  res.send({
-    message: 'Hello!'
+require('./routes')(app)
+
+sequelize.sync()
+  .then(() => {
+    app.listen(config.port)
+    console.log('Server alive at time ' + Date() + ' and listening on port ' + config.port)
   })
-  console.log('HELLO!!!')
-})
-
-app.listen(process.env.PORT || 8081)
